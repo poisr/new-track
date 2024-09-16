@@ -2,9 +2,9 @@
   "name": "equipment",
   "version": "1.0.0",
   "description": "",
-  "main": "project2/app.js",  
+  "main": "project2/app.js",
   "scripts": {
-    "start": "node project2/app.js",  
+    "start": "node project2/app.js",
     "build": "echo 'No build step specified'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -25,7 +25,7 @@
     "mongoose": "^8.5.1",
     "nodemon": "^3.1.4",
     "product": "^1.2.2",
-    "quagga": "^0.12.1",
+    "quagga": "^0.6.16",
     "sequelize": "^6.37.3",
     "sqlite3": "^5.1.7"
   },
