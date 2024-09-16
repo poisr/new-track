@@ -16,14 +16,13 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors({
-    origin: ['https://track-vv4f.onrender.com', 'http://localhost:8082'], // אפשר בקשות משני הדומיינים
+    origin: ['https://new-track.onrender.com'], // אפשר בקשות משני הדומיינים
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }));
 
-
-const PORT = process.env.PORT || 8082;
+const PORT = process.env.PORT || 10000;
 const HOST = '0.0.0.0';
 
 //alert("in app");
