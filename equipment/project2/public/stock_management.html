@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>טבלת מלאי</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <h1>מלאי</h1>
+    
+    <button id="exportBtn" class="export-button custom-button">ייצוא לאקסל</button>
+
+    <table id="inventoryTable">
+        <thead>
+            <tr>
+                <th>קטגוריה</th>
+                <th>מוצר</th>
+                <th>דגם</th>
+                <th>מספר פריטים</th> <!-- הוספת עמודה חדשה -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- שורות של פריטים יתמלאו כאן -->
+        </tbody>
+    </table>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+    <script src="js/stock_management.js"></script>
+</body>
+</html>

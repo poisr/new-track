@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בחירת פעולה</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="fixed-header">
+            <h1>Track</h1>
+            <h2>בחר פעולה</h2>
+        </div>
+        <div class="button-group">
+            <button id="addition" class="btn">הוספה</button>
+            <button id="deletion" class="btn">מחיקה</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('addition').addEventListener('click', () => {
+            window.location.href = 'manage.html'; // הפנייה לדף מחיקת מוצר
+        });
+
+        document.getElementById('deletion').addEventListener('click', () => {
+            window.location.href = 'manage-deletion.html'; // הפנייה לדף מחיקת מוצר
+        });
+    </script>
+</body>
+
+</html>

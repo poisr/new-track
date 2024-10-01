@@ -3,6 +3,11 @@ const bodyParser = require('body-parser');
 const { Op } = require('sequelize'); // ייבוא Op
 const Sequelize = require('sequelize');
 const authRoutes = require('./routes/auth');
+const inventoryRoutes  = require('./routes/inventory');
+const itemsRouter = require('./routes/item');
+const categoriesRouter = require('./routes/categories');
+const productsRouter = require('./routes/products');
+const modelsRouter = require('./routes/model');
 const Category = require('./models/category');
 const EquipmentLog = require('./models/equipmentLog');
 const Product = require('./models/product');
@@ -15,6 +20,7 @@ const cors = require('cors');
 
 const app = express();
 
+
 app.use(cors({
     origin: ['https://new-track.onrender.com'], // אפשר בקשות משני הדומיינים
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -22,7 +28,7 @@ app.use(cors({
     credentials: true
 }));
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 8082;
 const HOST = '0.0.0.0';
 
 //alert("in app");
@@ -40,6 +46,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/categories', categoriesRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/models', modelsRouter);
+app.use('/api/item', itemsRouter);
+
 
 
 
@@ -276,9 +288,6 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 
 
 // Route to generate reports
@@ -358,6 +367,7 @@ if (reportType === 'realtime') {
             item: {
                 [Sequelize.Op.notIn]: itemsToExclude
             }
+
         },
         order: [[sequelize.fn('MAX', sequelize.col('id')), 'DESC']],
         group: ['item'],
@@ -387,6 +397,10 @@ if (reportType === 'realtime') {
         console.error('Error fetching reports:', error);
         res.status(500).json({ message: 'Error fetching reports', error });
     }
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 

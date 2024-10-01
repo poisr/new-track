@@ -387,3 +387,26 @@ input::placeholder {
     transform: translateY(0);
 }
 
+
+
+/* CSS */
+#barcodeScannerContainer {
+    position: relative;
+}
+
+#barcodeScanner {
+    width: 100vw;
+    height: 100vh;
+}
+
+#barcodeFrame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80%;
+    height: 40%;
+    transform: translate(-50%, -50%);
+    border: 4px dashed red;  /* מסגרת אדומה עם קווים מקווקוים */
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);  /* הוספת צל למסגרת */
+    z-index: 1001;  /* תמיד מעל הווידאו */
+}

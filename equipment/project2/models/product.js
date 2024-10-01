@@ -1,28 +1,30 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/sequelize'); // ייבוא של חיבור ל-Sequelize
-const Category = require('./category'); // ייבוא של המודל Category
+const sequelize = require('../config/sequelize');
+const Category = require('./category');
 
 // יצירת המודל Product
 const Product = sequelize.define('Product', {
     name: {
         type: DataTypes.STRING,
-        allowNull: false, // חובה
+        allowNull: false,
     },
     categoryId: {
-        type: DataTypes.INTEGER, // או סוג שמתאים למזהה שלך, כמו STRING אם המזהים הם טקסט
+        type: DataTypes.INTEGER,
         references: {
-            model: Category, // המודל אליו מתייחסים
-            key: 'id', // שם השדה במודל Category שמהווה את המפתח הזר
+            model: Category,
+            key: 'id',
         },
-        allowNull: false, // חובה
+        allowNull: false,
     },
 }, {
-    // אפשרויות נוספות אם יש צורך
-    tableName: 'products', // שם הטבלה במסד הנתונים
-    timestamps: false, // אם אין לך תאריכי יצירה ועדכון
+    tableName: 'products',
+    timestamps: false,
 });
 
 // הגדרת קשרים
-Product.belongsTo(Category, { foreignKey: 'categoryId' });
+Product.associate = (models) => {
+    Product.belongsTo(models.Category, { foreignKey: 'categoryId', onDelete: 'CASCADE' });
+    Product.hasMany(models.Model, { foreignKey: 'productId', onDelete: 'CASCADE' }); // ודא שמודול Model קיים
+};
 
 module.exports = Product;

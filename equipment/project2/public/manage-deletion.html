@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>ניהול פריטים</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="container">
+            <div class="fixed-header">
+            <h1>Track</h1>
+            <h2>ניהול פריטים</h2>
+        </div>
+        
+        <h2>מחק קטגוריה</h2>
+        <select id="categorySelect">
+            <option value="">בחר קטגוריה</option>
+            <!-- כאן נכניס את האופציות מהקטגוריות במסד הנתונים -->
+        </select>
+        <button id="deleteCategory">מחק קטגוריה</button>
+
+        <h2>מחק מוצר</h2>
+        <select id="productSelect">
+            <option value="">בחר מוצר</option>
+            <!-- כאן נכניס את האופציות מהמוצרים במסד הנתונים -->
+        </select>
+        <button id="deleteProduct">מחק מוצר</button>
+
+        <h2>מחק דגם</h2>
+        <select id="modelSelect">
+            <option value="">בחר דגם</option>
+            <!-- כאן נכניס את האופציות מהמודלים במסד הנתונים -->
+        </select>
+        <button id="deleteModel">מחק דגם</button>
+
+        <h2>מחק פריט</h2>
+        <select id="itemSelect">
+            <option value="">בחר פריט</option>
+            <!-- כאן נכניס את האופציות מהפריטים במסד הנתונים -->
+        </select>
+        <button id="deleteItem">מחק פריט</button>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/manage-deletion.js"></script>
+</body>
+</html>

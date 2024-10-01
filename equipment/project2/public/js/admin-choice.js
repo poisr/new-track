@@ -11,7 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = './reports.html';
         } else if (choice === 'equipment-form') {
             window.location.href = './action-selection.html';
-        } else {
+        }else if (choice === 'inventory') {
+            window.location.href = './stock_management.html';
+        }else if (choice === 'Inventory-changes') {
+            window.location.href = './action-selection-manage.html';
+        }else {
             console.error('Choice is invalid:', choice);
         }
     };

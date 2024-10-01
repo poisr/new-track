@@ -91,145 +91,193 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            let scannerActive = false;
+let scannerActive = false;
 
-            function initScanner() {
-                const videoContainer = document.querySelector('#barcodeScanner');
-                if (videoContainer) {
-                    videoContainer.style.position = 'absolute';
-                    videoContainer.style.top = '0';
-                    videoContainer.style.left = '0';
-                    videoContainer.style.width = '100vw';  // Set to full viewport width
-                    videoContainer.style.height = '100vh'; // Set to full viewport height
-                    videoContainer.style.zIndex = '-1'; // Ensure it's behind other elements
-                }
-            
-                const hasCamera = 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices;
-            
-                if (!hasCamera) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'שגיאה',
-                        text: 'מצלמה לא נתמכת במכשיר זה.',
-                    });
-                    return;
-                }
-            
-                navigator.mediaDevices.enumerateDevices()
-                    .then(devices => {
-                        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                        const selectedDeviceId = videoDevices.length > 1 ? videoDevices[1].deviceId : videoDevices[0].deviceId;
-            
-                        Quagga.init({
-                            inputStream: {
-                                type: "LiveStream",
-                                target: videoContainer,
-                                constraints: {
-                                    deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
-                                    facingMode: { ideal: 'environment' },
-                                    width: { ideal: window.innerWidth },
-                                    height: { ideal: window.innerHeight },
-                                    focusMode: 'continuous' // מיקוד אוטומטי, אם נתמך
-                                }
-                            },
-                            decoder: {
-                                readers: [
-                                    "code_128_reader",
-                                    "ean_reader",
-                                    "ean_8_reader",
-                                    "upc_reader",
-                                    "upc_e_reader"
-                                ]
-                            },
-                            locate: true
-                        }, (err) => {
-                            if (err) {
-                                console.error('QuaggaJS initialization error:', err);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'שגיאה',
-                                    text: 'שגיאה בהפעלת סורק הברקודים. נסה שוב מאוחר יותר.',
-                                });
-                                return;
-                            }
-                            Quagga.start();
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error accessing camera:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'שגיאה',
-                            text: 'שגיאה בגישה למצלמה. ודא שהרשאות המצלמה ניתנו.',
-                        });
-                    });
-            
-                Quagga.onDetected((data) => {
-                    const barcode = data.codeResult.code;
-                    console.log('Barcode detected:', barcode);
-                    // barcodeInput.value = barcode; // Uncomment if you want to use this
-                    manualBarcodeInput.value = barcode;
-                    Quagga.stop();
-                    scannerActive = false;
-            
-                    fetchProductDetails(barcode);
-                });
-            }
-            
-            // Call initScanner when the page is fully loaded
-            document.addEventListener('DOMContentLoaded', initScanner);
-            
+function initScanner() {
+    const hasCamera = 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices;
 
-            
-
-function fetchProductDetails(barcode) {
-    if (!barcode || barcode === 'undefined') {
-        console.error('Barcode is invalid or undefined.');
+    if (!hasCamera) {
+        Swal.fire({
+            icon: 'error',
+            title: 'שגיאה',
+            text: 'מצלמה לא נתמכת במכשיר זה.',
+        });
         return;
     }
 
-    fetch(`/api/products/by-barcode/${barcode}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok.');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data) {
-                const categorySelect = document.getElementById('category');
-                const productSelect = document.getElementById('product');
-                const modelSelect = document.getElementById('model');
-                const itemSelect = document.getElementById('item');
+    navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            const backCamera = videoDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('rear'));
+            const selectedDeviceId = backCamera ? backCamera.deviceId : (videoDevices.length > 0 ? videoDevices[0].deviceId : null);
 
-                // Update the product and model dropdowns based on the fetched data
-                categorySelect.value = data.categoryId;
-                updateProducts(data.categoryId, data.id);
-
-                containerFrom.style.display = 'block';
-                barcodeScanner.style.display = 'none';
-
-                if (data.modelId) {
-                    setTimeout(() => {
-                        modelSelect.value = data.modelId;
-                        updateItems(data.modelId);
-
-                        if (data.itemId) {
-                            setTimeout(() => {
-                                itemSelect.value = data.itemId; // Update the item if found
-                            }, 500); // Wait to ensure items are loaded
+            Quagga.init({
+                inputStream: {
+                    type: "LiveStream",
+                    target: document.querySelector('#barcodeScanner'),
+                    constraints: getDynamicConstraints(selectedDeviceId), // קבלת הרזולוציה הדינמית
+                },
+                locator: {
+                    patchSize: "large", // שינוי לגודל פאטצ'ים גדול יותר
+                    halfSample: true
+                },
+                numOfWorkers: 4,
+                decoder: {
+                    readers: [
+                        "code_128_reader",
+                        "ean_reader",
+                        "ean_8_reader",
+                        "code_39_reader",
+                        "code_39_vin_reader",
+                        "codabar_reader",
+                        "upc_reader",
+                        "upc_e_reader",
+                        "i2of5_reader"
+                    ],
+                    debug: {
+                        showCanvas: true,
+                        showPatches: true,
+                        showFoundPatches: true,
+                        showSkeleton: true,
+                        showLabels: true,
+                        showPatchLabels: true,
+                        showRemainingPatchLabels: true,
+                        boxFromPatches: {
+                            showTransformed: true,
+                            showTransformedBox: true,
+                            showBB: true
                         }
-                    }, 500); // Wait to ensure models are loaded
+                    }
+                },
+                locate: true
+            }, (err) => {
+                if (err) {
+                    console.error('QuaggaJS initialization error:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'שגיאה',
+                        text: 'שגיאה בהפעלת סורק הברקודים. נסה שוב מאוחר יותר.',
+                    });
+                    return;
                 }
-            } else {
-                console.error('Product or Model not found');
-            }
+                Quagga.start();
+                scannerActive = true;
+                document.getElementById('stopScan').style.display = 'block';
+                adjustVideoSize(); // התאם את גודל הווידאו
+            });
         })
         .catch(error => {
-            console.error('Error fetching product details:', error);
+            console.error('Error accessing camera:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'שגיאה',
+                text: 'שגיאה בגישה למצלמה. ודא שהרשאות המצלמה ניתנו.',
+            });
         });
+
+    Quagga.onDetected((result) => {
+        const code = result.codeResult.code;
+        console.log('Barcode detected:', code);
+
+        // עצירת הסריקה והחזרת המצלמה לטופס
+        stopScanner();
+        document.getElementById('manualBarcode').value = code;  // הכנסת הברקוד לשדה הרלוונטי
+        document.getElementById('barcodeScanner').style.display = 'none';  // הסתרת המצלמה
+        document.getElementById('containerFrom').style.display = 'block';  // הצגת הטופס
+        fetchProductDetails(code);  // משיכת פרטי המוצר מהברקוד
+    });
+
+    // פונקציה לקבלת הרזולוציה הדינמית
+    function getDynamicConstraints(selectedDeviceId) {
+        return {
+            deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
+            facingMode: { exact: "environment" }, // להשתמש במצלמה האחורית
+            width: { min: 800, ideal: 1280, max: 1920 }, // רזולוציה אפשרית מוגדלת
+            height: { min: 600, ideal: 720, max: 1080 }, // רזולוציה אפשרית מוגדלת
+            aspectRatio: { ideal: 1.7777777778 }, // יחס רוחב-גובה
+        };
+    }
+
+    function adjustVideoSize() {
+        const scannerElement = document.getElementById('barcodeScanner');
+        if (scannerElement) {
+            scannerElement.style.position = 'fixed'; // שינוי למיקום קבוע
+            scannerElement.style.top = '0';
+            scannerElement.style.left = '0';
+            scannerElement.style.width = '100%'; // 100% רוחב המסך
+            scannerElement.style.height = '100%'; // 100% גובה המסך
+            scannerElement.style.zIndex = '10'; // לשים את המצלמה מעל כל שאר האלמנטים
+        }
+    }
+
+    // קריאה להתאמת הגודל בעת טעינה ושינוי גודל החלון
+    window.addEventListener('load', adjustVideoSize);
+    window.addEventListener('resize', adjustVideoSize);
 }
 
+function stopScanner() {
+    if (scannerActive) {
+        Quagga.stop();
+        scannerActive = false;
+    }
+    document.getElementById('barcodeScanner').style.display = 'none';
+    document.getElementById('stopScan').style.display = 'none';
+    document.getElementById('containerFrom').style.display = 'block';  // החזרת הטופס
+}
+
+document.getElementById('startScan').addEventListener('click', function() {
+    document.getElementById('barcodeScanner').style.display = 'block';
+    document.getElementById('containerFrom').style.display = 'none';
+    initScanner();
+});
+
+document.getElementById('stopScan').addEventListener('click', stopScanner);
+
+
+
+
+
+
+
+            
+
+            function fetchProductDetails(barcode) {
+                fetch(`/api/products/by-barcode/${barcode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data) {
+                            const categorySelect = document.getElementById('category');
+                            const productSelect = document.getElementById('product');
+                            const modelSelect = document.getElementById('model');
+                            const itemSelect = document.getElementById('item'); // Assuming you have a select for items
+            
+                            // Update the product and model dropdowns based on the fetched data
+                            categorySelect.value = data.categoryId;
+                            updateProducts(data.categoryId, data.id); // עדכון המוצר והדגם
+                            containerFrom.style.display = 'block';
+                            barcodeScanner.style.display = 'none';
+
+                                if (data.modelId) {
+                                    setTimeout(() => {
+                                        modelSelect.value = data.modelId;
+                                        updateItems(data.modelId); // עדכון הפריטים בהתאם לדגם
+            
+                                        if (data.itemId) {
+                                            setTimeout(() => {
+                                                itemSelect.value = data.itemId; // Update the item if found
+                                            }, 500); // המתן זמן מסוים לפני העדכון כדי לוודא שהפריטים נטענו
+                                        }
+                                    }, 700); // המתן זמן מסוים לפני העדכון כדי לוודא שהדגמים נטענו
+                                }
+                            } else {
+                                console.error('Product or Model not found');
+                            }
+                        }
+                    )
+                    .catch(error => {
+                        console.error('Error fetching product details:', error);
+                    });
+            }
             
 
             function updateModels(productId) {
@@ -397,39 +445,7 @@ function fetchProductDetails(barcode) {
         } catch (error) {
             console.error('שגיאה כללית:', error);
         }
-
-        let barcodeBuffer = '';
-let barcodeBufferTimeout = null;
-
-// Function to clean the barcode (remove unwanted characters)
-function cleanBarcode(barcode) {
-    return barcode.replace(/[\s\r\n]+/g, ''); // Remove spaces, carriage returns, and newlines
-}
-
-// Listen for global keyboard events
-document.addEventListener('keydown', (event) => {
-    // If no input field for barcode, exit function
-    if (!manualBarcodeInput) return;
-
-    // Filter out the Enter key (and other unwanted keys)
-    if (event.key !== 'Enter') {
-        barcodeBuffer += event.key;
-    }
-
-    clearTimeout(barcodeBufferTimeout);
-    barcodeBufferTimeout = setTimeout(() => {
-        if (barcodeBuffer) {
-            const cleanedBarcode = cleanBarcode(barcodeBuffer);
-            manualBarcodeInput.value = cleanedBarcode;
-            console.log('Barcode detected and input updated:', cleanedBarcode);
-            fetchProductDetails(cleanedBarcode); // Call function to handle the barcode
-            barcodeBuffer = ''; // Clear the buffer after processing
-        }
-    }, 500); // Wait 500 ms before processing the barcode
-});
-
     }
 
     handleEquipmentForm();
 });
-

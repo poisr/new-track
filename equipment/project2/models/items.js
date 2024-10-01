@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/sequelize'); // ייבוא של חיבור ל-Sequelize
+const sequelize = require('../config/sequelize');
 const Model = require('./model'); // ייבוא של המודל Model
 
 // יצירת המודל Item
@@ -16,18 +16,18 @@ const Item = sequelize.define('Item', {
     modelId: {
         type: DataTypes.INTEGER, // או STRING בהתאם למודל Model
         references: {
-            model: Model, // המודל אליו מתייחסים
-            key: 'id', // שם השדה במודל Model שמהווה את המפתח הזר
+            model: Model,
+            key: 'id',
         },
         allowNull: false, // חובה
     },
 }, {
-    // אפשרויות נוספות אם יש צורך
     tableName: 'items', // שם הטבלה במסד הנתונים
     timestamps: false, // אם אין לך תאריכי יצירה ועדכון
 });
 
-// הגדרת המפתח הזר
-Item.belongsTo(Model, { foreignKey: 'modelId' });
+// הגדרת קשרים
+Item.belongsTo(Model, { foreignKey: 'modelId', onDelete: 'CASCADE' }); // הוסף onDelete: 'CASCADE'
+Model.hasMany(Item, { foreignKey: 'modelId', onDelete: 'CASCADE' }); // ודא שיש קשר דו-כיווני
 
 module.exports = Item;
