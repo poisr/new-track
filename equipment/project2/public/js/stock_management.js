@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function loadInventory() {
     try {
-        const response = await fetch('https://track-vv4f.onrender.com/api/inventory');
+        const response = await fetch('http://localhost:3001/api/inventory');
         if (!response.ok) {
             throw new Error('שגיאה בטעינת המלאי: ' + response.statusText);
         }

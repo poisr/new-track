@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const firstNameField = document.getElementById('first-name');
     const lastNameField = document.getElementById('last-name');
 
-    const apiBaseUrl = 'https://track-vv4f.onrender.com';
+    const apiBaseUrl = 'https://new-track.onrender.com';
 
     phoneNumberField.addEventListener('input', async () => {
         const phoneNumber = phoneNumberField.value;

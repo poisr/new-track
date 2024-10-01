@@ -28,7 +28,7 @@ app.use(cors({
     credentials: true
 }));
 
-const PORT = process.env.PORT || 8082;
+const PORT = process.env.PORT || 10000;
 const HOST = '0.0.0.0';
 
 //alert("in app");
